@@ -24,7 +24,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user: # Checks to make sure that the message wasn't sent by the bot
         return 
-    if client.user.mentioned_in(message) or message.channel.id == 1372374099409502208:
+    if client.user.mentioned_in(message) or message.channel.id == 1111881291365883984: #TODO: Make this changable in a seperate file
         await message.channel.send("It works!")
 
 client.run(DISCORD_API_TOKEN)
@@ -36,7 +36,7 @@ client = OpenAI(
 )
 
 # Sending message to the AI
-completion = await client.chat.completions.create(
+completion = client.chat.completions.create(
     extra_headers={
         "HTTP-Referer": "https://github.com/uriahn/konan-ai",
         "X-Title": "Konan AI",
