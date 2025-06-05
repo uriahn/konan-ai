@@ -24,8 +24,8 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user: # Checks to make sure that the message wasn't sent by the bot
         return 
-    if client.user.mentioned_in(message) or message.channel.id == 1111881291365883984: #TODO: Make this changable in a seperate file
-        await message.channel.send("It works!")
+    elif client.user.mentioned_in(message) or message.channel.id == 1307212823356768326 or message.channel.id == 1372374099409502208: #TODO: Make this changable in a seperate file
+        await message.channel.send("TODO: Make this do anything at all")
 
 client.run(DISCORD_API_TOKEN)
 
@@ -35,6 +35,7 @@ client = OpenAI(
     api_key=OPENROUTER_API_KEY
 )
 
+#TODO: Make this do anything at all
 # Sending message to the AI
 completion = client.chat.completions.create(
     extra_headers={
@@ -45,7 +46,7 @@ completion = client.chat.completions.create(
         messages=[
         {
             "role": "user",
-            "content": "This will be a variable eventually, haven't added the messages yet"
+            "content": "This will be a variable eventually, haven't added the messages yet."
         }
     ]
 )
