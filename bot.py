@@ -89,6 +89,9 @@ async def on_message(message):
         if client.user.mentioned_in(message):
             user_message = user_message.replace(f'<@{client.user.id}>', '').strip() # Removes the junk from the message
 
+        if len(user_message) == 0:
+            return
+
         ai_response = await get_ai_response(user_message) # Send message to AI
         
         try:
