@@ -9,9 +9,15 @@ load_dotenv()
 DISCORD_API_TOKEN = os.getenv("DISCORD_API_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
+# Loading the config
+import config
+BASE_URL = config.BASE_URL
+AI_MODEL = config.AI_MODEL
+ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
+
 # Defining OpenAI client
 openai_client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
+    base_url=BASE_URL,
     api_key=OPENROUTER_API_KEY
 )
 
@@ -21,7 +27,7 @@ async def get_ai_response(message_content):
         response = await loop.run_in_executor(
             None, 
             lambda: openai_client.chat.completions.create(
-                model="meta-llama/llama-4-maverick",
+                model=AI_MODEL,
                 messages=[{"role": "user", "content": message_content}],
                 extra_headers={
                     "HTTP-Referer": "https://github.com/uriahn/konan-ai",
@@ -77,7 +83,7 @@ async def on_message(message):
     if message.author == client.user: # Checks to make sure that the message wasn't sent by the bot
         return
 
-    if client.user.mentioned_in(message) or message.channel.id == 1307212823356768326 or message.channel.id == 1372374099409502208 or message.channel.id == 1111881291365883984: # TODO: Make this changable in a seperate file
+    if client.user.mentioned_in(message) or message.channel.id in ACTIVE_CHANNELS:
         user_message = message.content
 
         if client.user.mentioned_in(message):
