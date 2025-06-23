@@ -4,22 +4,23 @@ import asyncio
 import os
 from dotenv import load_dotenv
 
-# Loads the API keys
+# Load the API keys
 load_dotenv()
 DISCORD_API_TOKEN = os.getenv("DISCORD_API_TOKEN")
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-# Loading the config
+# Load the config
 import config
 BASE_URL = config.BASE_URL
 AI_MODEL = config.AI_MODEL
 ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
 
-# Defining OpenAI client
+# Define OpenAI client
 openai_client = OpenAI(
     base_url=BASE_URL,
     api_key=OPENROUTER_API_KEY
 )
+
 
 async def get_ai_response(message_content):
     try:
@@ -39,6 +40,7 @@ async def get_ai_response(message_content):
     except Exception as e:
         return f"Sorry, the horrible code of my developer caused this error: {str(e)}"
 
+
 async def send_long_message(channel, message):
     if len(message) <= 2000:
         await channel.send(message)
@@ -46,7 +48,8 @@ async def send_long_message(channel, message):
     
     # Split message into chunks of 2000 characters or less
     chunks = []
-    while len(message) > 2000: # Find a good break point, those being spaces, newlines, and punctuation
+    while len(message) > 2000:
+        # Find a good break point, those being spaces, newlines, and punctuation
         break_point = 2000
         for i in range(1999, 1800, -1):
             if message[i] in [' ', '\n', '.', '!', '?', ';']:
@@ -67,36 +70,45 @@ async def send_long_message(channel, message):
         else:
             await channel.send(f"(continued...)\n{chunk}")
 
-# Just some basic Discord loading stuff
+
+# Initialize Discord client
 intents = discord.Intents.default()
 intents.message_content = True
-
 client = discord.Client(intents=intents)
+
 
 @client.event
 async def on_ready():
-    print(f"We have logged in as {client.user}") # Logs if it successfully loaded
+    # Log if it successfully loaded
+    print(f"We have logged in as {client.user}")
 
-# Checks to make sure you ping it or send it in the right channel
+
 @client.event
 async def on_message(message):
-    if message.author == client.user: # Checks to make sure that the message wasn't sent by the bot
+    # Check to make sure that the message wasn't sent by the bot
+    if message.author == client.user:
         return
 
+    # Check to make sure you ping it or send it in the right channel
     if client.user.mentioned_in(message) or message.channel.id in ACTIVE_CHANNELS:
         user_message = message.content
 
         if client.user.mentioned_in(message):
-            user_message = user_message.replace(f'<@{client.user.id}>', '').strip() # Removes the junk from the message
+            # Remove the mention from the message
+            user_message = user_message.replace(f'<@{client.user.id}>', '').strip()
 
         if len(user_message) == 0:
             return
 
-        ai_response = await get_ai_response(user_message) # Send message to AI
+        # Send message to AI
+        ai_response = await get_ai_response(user_message)
         
         try:
-            await send_long_message(message.channel, ai_response) # Send it as multiple messages
+            # Send it as multiple messages if needed
+            await send_long_message(message.channel, ai_response)
         except Exception as e:
-            await message.channel.send(f"Sorry, the horrible code of my developer caused this error: {str(e)}") # Sends an error if it doens't work
+            # Send an error if it doesn't work
+            await message.channel.send(f"Sorry, the horrible code of my developer caused this error: {str(e)}")
+
 
 client.run(DISCORD_API_TOKEN)
