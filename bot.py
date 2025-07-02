@@ -19,6 +19,7 @@ AI_MODEL = config.AI_MODEL
 ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
 IGNORE_PREFIX = config.IGNORE_PREFIX
 SYSTEM_PROMPT = config.SYSTEM_PROMPT
+PERSONALITY = config.PERSONALITY
 
 # Set the logging format
 logging.basicConfig(format='%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -33,14 +34,17 @@ openai_client = OpenAI(
 message_history = []
 
 
-async def get_ai_response(message_history):
+async def get_ai_response(message_history, server_name):
     try:
         loop = asyncio.get_event_loop()
         response = await loop.run_in_executor(
             None, 
             lambda: openai_client.chat.completions.create(
                 model=AI_MODEL,
-                messages=[{"role": "developer", "content": SYSTEM_PROMPT}, # system prompt, figure out dynamic values later
+                messages=[{"role": "developer", "content": SYSTEM_PROMPT.format(
+                             bot_personality=PERSONALITY,
+                             discord_server_name=server_name,
+                             current_date_time=time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime()))},
                           *message_history],
                 extra_headers={
                     "HTTP-Referer": "https://github.com/uriahn/konan-ai",
@@ -114,7 +118,7 @@ async def on_message(message):
 
         # Send message to AI
         message_history.append({"role": "user", "content": user_message})
-        ai_response = await get_ai_response(message_history)
+        ai_response = await get_ai_response(message_history, message.guild.name)
         message_history.append({"role": "assistant", "content": ai_response})
         
         try:
