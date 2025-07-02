@@ -17,6 +17,7 @@ import config
 BASE_URL = config.BASE_URL
 AI_MODEL = config.AI_MODEL
 ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
+IGNORE_PREFIX = config.IGNORE_PREFIX
 
 # Set the logging format
 logging.basicConfig(format='%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -103,7 +104,7 @@ async def on_message(message):
             # Remove the mention from the message
             user_message = user_message.replace(f'<@{client.user.id}>', '').strip()
 
-        if len(user_message) == 0:
+        if len(user_message) == 0 or user_message.startswith(IGNORE_PREFIX):
             return
 
         # Send message to AI
