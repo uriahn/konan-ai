@@ -1,8 +1,11 @@
-import discord
-from openai import OpenAI
-import asyncio
-import os
 from dotenv import load_dotenv
+from openai import OpenAI
+import discord
+import asyncio
+import logging
+import os
+import sys
+import time
 
 # Load the API keys
 load_dotenv()
@@ -14,6 +17,9 @@ import config
 BASE_URL = config.BASE_URL
 AI_MODEL = config.AI_MODEL
 ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
+
+# Set the logging format
+logging.basicConfig(format='%(asctime)s [%(levelname)]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 # Define OpenAI client
 openai_client = OpenAI(
@@ -50,11 +56,14 @@ async def send_long_message(channel, message):
     chunks = []
     while len(message) > 2000:
         # Find a good break point, those being spaces, newlines, and punctuation
-        break_point = 2000
-        for i in range(1999, 1800, -1):
-            if message[i] in [' ', '\n', '.', '!', '?', ';']:
-                break_point = i + 1
-                break
+        break_point = 2001
+        for chars in (('\n',), ('.', '!', '?'), (';',), (' ',)): # The precedence is \n .!? ; <space>
+            if break_point > 2000:
+                for i in range(2000, 0, -1):
+                    if message[i] in chars:
+                        break_point = i + 1
+                        break
+        if break_point > 2000: break_point = 2000 # Finally, if it failed, break at whatever character
         
         chunks.append(message[:break_point])
         message = message[break_point:]
@@ -65,10 +74,7 @@ async def send_long_message(channel, message):
     
     # Send each chunk
     for i, chunk in enumerate(chunks):
-        if i == 0:
-            await channel.send(chunk)
-        else:
-            await channel.send(f"(continued...)\n{chunk}")
+        await channel.send(chunk)
 
 
 # Initialize Discord client
@@ -108,6 +114,7 @@ async def on_message(message):
             await send_long_message(message.channel, ai_response)
         except Exception as e:
             # Send an error if it doesn't work
+            logging.exception(f"Error in sending message:")
             await message.channel.send(f"Sorry, the horrible code of my developer caused this error: {str(e)}")
 
 
