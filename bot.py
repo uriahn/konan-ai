@@ -19,7 +19,7 @@ AI_MODEL = config.AI_MODEL
 ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
 
 # Set the logging format
-logging.basicConfig(format='%(asctime)s [%(levelname)]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(format='%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 # Define OpenAI client
 openai_client = OpenAI(
