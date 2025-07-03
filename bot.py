@@ -53,6 +53,7 @@ async def get_ai_response(message_history, server_name):
         )
         return response.choices[0].message.content
     except Exception as e:
+        logging.exception(f"Error in getting response:")
         return f"Sorry, the horrible code of my developer caused this error: {str(e)}"
 
 
