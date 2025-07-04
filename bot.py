@@ -1,6 +1,8 @@
 from dotenv import load_dotenv
 from openai import OpenAI
 import discord
+from discord.ext import commands
+from discord import app_commands
 import asyncio
 import logging
 import os
@@ -16,6 +18,7 @@ import config
 BASE_URL = config.BASE_URL
 AI_MODEL = config.AI_MODEL
 ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
+SERVER_ID = config.SERVER_ID
 IGNORE_PREFIX = config.IGNORE_PREFIX
 SYSTEM_PROMPT = config.SYSTEM_PROMPT
 PERSONALITY = config.PERSONALITY
@@ -87,16 +90,23 @@ async def send_long_message(channel, message):
         await channel.send(chunk)
 
 
-# Initialize Discord client
+# Initialize Discord Bot
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents)
+client = commands.Bot(command_prefix="}", intents=intents)
 
 
 @client.event
 async def on_ready():
     # Log if it successfully loaded
     print(f"We have logged in as {client.user}")
+    
+    # Sync slash commands
+    try:
+        synced = await client.tree.sync(guild=discord.Object(id=1077552667393527838))
+        print(f"Synced {len(synced)} command(s)")
+    except Exception as e:
+        print(f"Failed to sync commands: {e}")
 
 
 @client.event
@@ -128,6 +138,26 @@ async def on_message(message):
             # Send an error if it doesn't work
             logging.exception(f"Error in sending message:")
             await message.channel.send(f"Sorry, the horrible code of my developer caused this error: {str(e)}")
+
+
+# Make slash commands
+GUILD_ID = discord.Object(id=SERVER_ID)
+
+@client.tree.command(name="info", description="Information about Konan AI", guild=GUILD_ID)
+async def cmdTest(interaction: discord.Interaction):
+    await interaction.response.send_message("""\
+Hello! I am Konan AI, a basic AI Discord bot.
+I am developed by uriahn and WarpedWartWars on GitHub, and you can view my code at <https://github.com/uriahn/konan-ai>.
+My AI model is Llama 4 Maverick, hosted by Groq through OpenRouter.""")
+
+@client.tree.command(name="privacy", description="Our privacy policy", guild=GUILD_ID)
+async def cmdTest(interaction: discord.Interaction):
+    await interaction.response.send_message("""\
+We do not collect any data intentionally. However, we cannot guarantee that your data isn't collected by our providers.
+Below are the privacy policies of our providers:
+<https://groq.com/privacy-policy>
+<https://openrouter.ai/privacy>""")
+
 
 
 client.run(DISCORD_API_TOKEN)

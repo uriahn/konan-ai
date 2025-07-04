@@ -1,4 +1,4 @@
-# This is where the non-secret configurations go
+# This is where the non-secret configurations go, API keys go in .env
 
 # AI related configs
 BASE_URL = "https://openrouter.ai/api/v1"
@@ -9,7 +9,7 @@ ACTIVE_CHANNELS = [
     0000000000000000000,
     0000000000000000001
 ]
-
+SERVER_ID=1077552667393527838
 IGNORE_PREFIX = "kai%ign"
 
 SYSTEM_PROMPT = """\
