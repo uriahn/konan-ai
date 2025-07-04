@@ -127,7 +127,7 @@ async def on_message(message):
             return
 
         # Send message to AI
-        message_history.append({"role": "user", "content": user_message, "name": message.author.display_name})
+        message_history.append({"role": "user", "content": f"{message.author.display_name}: {user_message}"})
         ai_response = await get_ai_response(message_history, message.guild.name)
         message_history.append({"role": "assistant", "content": ai_response})
         
