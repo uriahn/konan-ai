@@ -32,8 +32,9 @@ openai_client = OpenAI(
     api_key=OPENROUTER_API_KEY
 )
 
-# List of past messages
+# List of past messages and dict of users' nicknames set via /ainame
 message_history = []
+nicknames = {}
 
 
 async def get_ai_response(message_history, server_name):
@@ -126,6 +127,10 @@ async def on_message(message):
         if len(user_message) == 0 or user_message.startswith(IGNORE_PREFIX):
             return
 
+        user_nick = message.author.display_name
+        if message.author.id in nicknames:
+            user_nick = nicknames[message.author.id]
+
         # Send message to AI
         message_history.append({"role": "user", "content": f"{message.author.display_name}: {user_message}"})
         ai_response = await get_ai_response(message_history, message.guild.name)
@@ -144,19 +149,32 @@ async def on_message(message):
 GUILD_ID = discord.Object(id=SERVER_ID)
 
 @client.tree.command(name="info", description="Information about Konan AI", guild=GUILD_ID)
-async def cmdTest(interaction: discord.Interaction):
+async def infoCmd(interaction: discord.Interaction):
     await interaction.response.send_message("""\
 Hello! I am Konan AI, a basic AI Discord bot.
 I am developed by uriahn and WarpedWartWars on GitHub, and you can view my code at <https://github.com/uriahn/konan-ai>.
 My AI model is Llama 4 Maverick, hosted by Groq through OpenRouter.""")
 
 @client.tree.command(name="privacy", description="Our privacy policy", guild=GUILD_ID)
-async def cmdTest(interaction: discord.Interaction):
+async def privacyCmd(interaction: discord.Interaction):
     await interaction.response.send_message("""\
 We do not collect any data intentionally. However, we cannot guarantee that your data isn't collected by our providers.
 Below are the privacy policies of our providers:
 <https://groq.com/privacy-policy>
 <https://openrouter.ai/privacy>""")
+
+@client.tree.command(name="ainame", description="Set what Konan AI sees your name as", guild=GUILD_ID)
+async def ainameCmd(interaction: discord.Interaction, nickname: str):
+    if nickname == "":
+        del nicknames[interaction.user.id]
+        await interaction.response.send_message(
+            f"Reset your nickname for Konan AI.", ephemeral=True
+        )
+    else:
+        nicknames[interaction.user.id] = nickname
+        await interaction.response.send_message(
+            f"Set your nickname for Konan AI to '{nickname}'.", ephemeral=True
+        )
 
 
 
