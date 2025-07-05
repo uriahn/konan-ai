@@ -21,6 +21,8 @@ ACTIVE_CHANNELS = config.ACTIVE_CHANNELS
 SERVER_ID = config.SERVER_ID
 IGNORE_PREFIX = config.IGNORE_PREFIX
 SYSTEM_PROMPT = config.SYSTEM_PROMPT
+MODEL_NAME = config.MODEL_NAME
+MODEL_PRIVACY_POLICIES = config.MODEL_PRIVACY_POLICIES
 PERSONALITY = config.PERSONALITY
 
 # Set the logging format
@@ -45,6 +47,7 @@ async def get_ai_response(message_history, server_name):
             lambda: openai_client.chat.completions.create(
                 model=AI_MODEL,
                 messages=[{"role": "developer", "content": SYSTEM_PROMPT.format(
+                             model_name=MODEL_NAME,
                              bot_personality=PERSONALITY,
                              discord_server_name=server_name,
                              current_date_time=time.strftime('%Y-%m-%d %H:%M:%S UTC', time.gmtime()))},
@@ -150,18 +153,17 @@ GUILD_ID = discord.Object(id=SERVER_ID)
 
 @client.tree.command(name="info", description="Information about Konan AI", guild=GUILD_ID)
 async def infoCmd(interaction: discord.Interaction):
-    await interaction.response.send_message("""\
+    await interaction.response.send_message(f"""\
 Hello! I am Konan AI, a basic AI Discord bot.
 I am developed by uriahn and WarpedWartWars on GitHub, and you can view my code at <https://github.com/uriahn/konan-ai>.
-My AI model is Llama 4 Maverick, hosted by Groq through OpenRouter.""")
+My AI model is {MODEL_NAME}.""")
 
 @client.tree.command(name="privacy", description="Our privacy policy", guild=GUILD_ID)
 async def privacyCmd(interaction: discord.Interaction):
-    await interaction.response.send_message("""\
+    await interaction.response.send_message(f"""\
 We do not collect any data intentionally. However, we cannot guarantee that your data isn't collected by our providers.
-Below are the privacy policies of our providers:
-<https://groq.com/privacy-policy>
-<https://openrouter.ai/privacy>""")
+Below are the privacy policies of our provider(s):
+{MODEL_PRIVACY_POLICIES}""")
 
 @client.tree.command(name="ainame", description="Set what Konan AI sees your name as", guild=GUILD_ID)
 async def ainameCmd(interaction: discord.Interaction, nickname: str):
