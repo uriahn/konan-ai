@@ -34,9 +34,10 @@ openai_client = OpenAI(
     api_key=OPENROUTER_API_KEY
 )
 
-# List of past messages and dict of users' nicknames set via /ainame
+# List of past messages and database stuff (until we make an actual database)
 message_history = []
 nicknames = {}
+memories = {}
 
 
 async def get_ai_response(message_history, server_name):
@@ -176,6 +177,32 @@ async def ainameCmd(interaction: discord.Interaction, nickname: str):
         nicknames[interaction.user.id] = nickname
         await interaction.response.send_message(
             f"Set your nickname for Konan AI to '{nickname}'.", ephemeral=True
+        )
+
+@client.tree.command(name="save", description="Save or reset the message history", guild=GUILD_ID)
+async def saveCmd(interaction: discord.Interaction, name: str):
+    if name != "":
+        memories[name] = message_history.copy()
+    message_history.clear()
+    if name == "":
+        await interaction.response.send_message(
+            f"Reset the message history.", ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            f"Saved the message history as `{name}`.", ephemeral=True
+        )
+
+@client.tree.command(name="restore", description="Restore a memory", guild=GUILD_ID)
+async def saveCmd(interaction: discord.Interaction, name: str):
+    if name in memories:
+        message_history = memories[name].copy()
+        await interaction.response.send_message(
+            f"Recalled memory `{name}`.", ephemeral=True
+        )
+    else:
+        await interaction.response.send_message(
+            f"That memory doesn't exist! These are the ones that do:\n* `{'`\n* `'.join(memories.keys)}`", ephemeral=True
         )
 
 
