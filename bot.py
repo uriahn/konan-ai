@@ -187,23 +187,23 @@ async def saveCmd(interaction: discord.Interaction, name: Optional[str] = None):
     message_history.clear()
     if name is None:
         await interaction.response.send_message(
-            f"Reset the message history.", ephemeral=True
+            f"Reset the message history."
         )
     else:
         await interaction.response.send_message(
-            f"Saved the message history as `{name}`.", ephemeral=True
+            f"Saved the message history as `{name}`."
         )
 
 @client.tree.command(name="recall", description="Recall a memory", guild=GUILD_ID)
-async def recallCmd(interaction: discord.Interaction, name: Optional[str] = None):
+async def recallCmd(interaction: discord.Interaction, name: str):
     if name in memories:
         message_history[:] = memories[name].copy()
         await interaction.response.send_message(
-            f"Recalled memory `{name}`.", ephemeral=True
+            f"Recalled memory `{name}`."
         )
     else:
         await interaction.response.send_message(
-            f"That memory doesn't exist! These are the ones that do:\n* `{'`\n* `'.join(memories.keys)}`", ephemeral=True
+            f"That memory doesn't exist! These are the ones that do:\n* `{'`\n* `'.join(memories.keys())}`", ephemeral=True
         )
 
 
