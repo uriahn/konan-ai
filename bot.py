@@ -167,7 +167,7 @@ Below are the privacy policies of our provider(s):
 {MODEL_PRIVACY_POLICIES}""")
 
 @client.tree.command(name="ainame", description="Set what Konan AI sees your name as", guild=GUILD_ID)
-async def ainameCmd(interaction: discord.Interaction, nickname: str):
+async def ainameCmd(interaction: discord.Interaction, nickname: str = ""):
     if nickname == "":
         del nicknames[interaction.user.id]
         await interaction.response.send_message(
@@ -180,7 +180,7 @@ async def ainameCmd(interaction: discord.Interaction, nickname: str):
         )
 
 @client.tree.command(name="save", description="Save or reset the message history", guild=GUILD_ID)
-async def saveCmd(interaction: discord.Interaction, name: str):
+async def saveCmd(interaction: discord.Interaction, name: str = ""):
     if name != "":
         memories[name] = message_history.copy()
     message_history.clear()
@@ -193,8 +193,8 @@ async def saveCmd(interaction: discord.Interaction, name: str):
             f"Saved the message history as `{name}`.", ephemeral=True
         )
 
-@client.tree.command(name="restore", description="Restore a memory", guild=GUILD_ID)
-async def saveCmd(interaction: discord.Interaction, name: str):
+@client.tree.command(name="recall", description="Recall a memory", guild=GUILD_ID)
+async def recallCmd(interaction: discord.Interaction, name: str = ""):
     if name in memories:
         message_history[:] = memories[name].copy()
         await interaction.response.send_message(
