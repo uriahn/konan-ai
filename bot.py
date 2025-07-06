@@ -3,6 +3,7 @@ from openai import OpenAI
 import discord
 from discord.ext import commands
 from discord import app_commands
+from typing import Optional
 import asyncio
 import logging
 import os
@@ -34,9 +35,10 @@ openai_client = OpenAI(
     api_key=OPENROUTER_API_KEY
 )
 
-# List of past messages and dict of users' nicknames set via /ainame
+# List of past messages and database stuff (until we make an actual database)
 message_history = []
 nicknames = {}
+memories = {}
 
 
 async def get_ai_response(message_history, server_name):
@@ -166,8 +168,8 @@ Below are the privacy policies of our provider(s):
 {MODEL_PRIVACY_POLICIES}""")
 
 @client.tree.command(name="ainame", description="Set what Konan AI sees your name as", guild=GUILD_ID)
-async def ainameCmd(interaction: discord.Interaction, nickname: str):
-    if nickname == "":
+async def ainameCmd(interaction: discord.Interaction, nickname: Optional[str] = None):
+    if nickname is None:
         del nicknames[interaction.user.id]
         await interaction.response.send_message(
             f"Reset your nickname for Konan AI.", ephemeral=True
@@ -176,6 +178,32 @@ async def ainameCmd(interaction: discord.Interaction, nickname: str):
         nicknames[interaction.user.id] = nickname
         await interaction.response.send_message(
             f"Set your nickname for Konan AI to '{nickname}'.", ephemeral=True
+        )
+
+@client.tree.command(name="save", description="Save or reset the message history", guild=GUILD_ID)
+async def saveCmd(interaction: discord.Interaction, name: Optional[str] = None):
+    if name is not None:
+        memories[name] = message_history.copy()
+    message_history.clear()
+    if name is None:
+        await interaction.response.send_message(
+            f"Reset the message history."
+        )
+    else:
+        await interaction.response.send_message(
+            f"Saved the message history as `{name}`."
+        )
+
+@client.tree.command(name="recall", description="Recall a memory", guild=GUILD_ID)
+async def recallCmd(interaction: discord.Interaction, name: str):
+    if name in memories:
+        message_history[:] = memories[name].copy()
+        await interaction.response.send_message(
+            f"Recalled memory `{name}`."
+        )
+    else:
+        await interaction.response.send_message(
+            f"That memory doesn't exist! These are the ones that do:\n* `{'`\n* `'.join(memories.keys())}`", ephemeral=True
         )
 
 
