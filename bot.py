@@ -196,7 +196,7 @@ async def saveCmd(interaction: discord.Interaction, name: str):
 @client.tree.command(name="restore", description="Restore a memory", guild=GUILD_ID)
 async def saveCmd(interaction: discord.Interaction, name: str):
     if name in memories:
-        message_history = memories[name].copy()
+        message_history[:] = memories[name].copy()
         await interaction.response.send_message(
             f"Recalled memory `{name}`.", ephemeral=True
         )
