@@ -3,6 +3,7 @@ from openai import OpenAI
 import discord
 from discord.ext import commands
 from discord import app_commands
+from typing import Optional
 import asyncio
 import logging
 import os
@@ -167,8 +168,8 @@ Below are the privacy policies of our provider(s):
 {MODEL_PRIVACY_POLICIES}""")
 
 @client.tree.command(name="ainame", description="Set what Konan AI sees your name as", guild=GUILD_ID)
-async def ainameCmd(interaction: discord.Interaction, nickname: str = ""):
-    if nickname == "":
+async def ainameCmd(interaction: discord.Interaction, nickname: Optional[str] = None):
+    if nickname is None:
         del nicknames[interaction.user.id]
         await interaction.response.send_message(
             f"Reset your nickname for Konan AI.", ephemeral=True
@@ -180,11 +181,11 @@ async def ainameCmd(interaction: discord.Interaction, nickname: str = ""):
         )
 
 @client.tree.command(name="save", description="Save or reset the message history", guild=GUILD_ID)
-async def saveCmd(interaction: discord.Interaction, name: str = ""):
-    if name != "":
+async def saveCmd(interaction: discord.Interaction, name: Optional[str] = None):
+    if name is not None:
         memories[name] = message_history.copy()
     message_history.clear()
-    if name == "":
+    if name is None:
         await interaction.response.send_message(
             f"Reset the message history.", ephemeral=True
         )
@@ -194,7 +195,7 @@ async def saveCmd(interaction: discord.Interaction, name: str = ""):
         )
 
 @client.tree.command(name="recall", description="Recall a memory", guild=GUILD_ID)
-async def recallCmd(interaction: discord.Interaction, name: str = ""):
+async def recallCmd(interaction: discord.Interaction, name: Optional[str] = None):
     if name in memories:
         message_history[:] = memories[name].copy()
         await interaction.response.send_message(
