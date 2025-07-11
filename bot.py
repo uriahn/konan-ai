@@ -63,7 +63,7 @@ async def get_ai_response(message_history, server_name):
         return response.choices[0].message.content
     except Exception as e:
         logging.exception(f"Error in getting response:")
-        return f"Sorry, the horrible code of my developer caused this error: {str(e)}"
+        return f"Sorry, the horrible code of my developers caused this error in get_ai_response: {str(e)}"
 
 
 async def send_long_message(channel, message):
@@ -83,8 +83,9 @@ async def send_long_message(channel, message):
                         break_point = i + 1
                         break
         if break_point > 2000: break_point = 2000 # Finally, if it failed, break at whatever character
-        
-        chunks.append(message[:break_point])
+
+        if message[:break_point]:
+            chunks.append(message[:break_point])
         message = message[break_point:]
     
     # Add the remaining message
@@ -146,8 +147,8 @@ async def on_message(message):
             await send_long_message(message.channel, ai_response)
         except Exception as e:
             # Send an error if it doesn't work
-            logging.exception(f"Error in sending message:")
-            await message.channel.send(f"Sorry, the horrible code of my developer caused this error: {str(e)}")
+            logging.exception(f"Error in sending message:\n{ai_response}")
+            await message.channel.send(f"Sorry, the horrible code of my developers caused this error in send_long_message: {str(e)}")
 
 
 # Make slash commands
