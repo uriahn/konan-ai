@@ -3,7 +3,7 @@ from openai import OpenAI
 import discord
 from discord.ext import commands
 from discord import app_commands
-from typing import Optional
+from typing import Optional, Literal
 import asyncio
 import logging
 import os
@@ -25,6 +25,7 @@ SYSTEM_PROMPT = config.SYSTEM_PROMPT
 MODEL_NAME = config.MODEL_NAME
 MODEL_PRIVACY_POLICIES = config.MODEL_PRIVACY_POLICIES
 PERSONALITY = config.PERSONALITY
+DEBUG = config.DEBUG
 
 # Set the logging format
 logging.basicConfig(format='%(asctime)s [%(levelname)s]: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
@@ -39,6 +40,10 @@ openai_client = OpenAI(
 message_history = []
 nicknames = {}
 memories = {}
+
+# Debugging variables
+if DEBUG:
+    debug_error_sending_message = False
 
 
 async def get_ai_response(message_history, server_name):
@@ -91,7 +96,11 @@ async def send_long_message(channel, message):
     # Add the remaining message
     if message:
         chunks.append(message)
-    
+
+    if DEBUG and debug_error_sending_message:
+        global debug_error_sending_message
+        debug_error_sending_message = False
+        raise Exception("debugging")
     # Send each chunk
     for i, chunk in enumerate(chunks):
         await channel.send(chunk)
@@ -206,6 +215,17 @@ async def recallCmd(interaction: discord.Interaction, name: str):
         await interaction.response.send_message(
             f"That memory doesn't exist! These are the ones that do:\n* `{'`\n* `'.join(memories.keys())}`", ephemeral=True
         )
+
+if DEBUG:
+    @client.tree.command(name="error", description="Error (for debugging)", guild=GUILD_ID)
+    async def recallCmd(interaction: discord.Interaction, where: Literal["send"]):
+        if where == "send":
+            global debug_error_sending_message
+            debug_error_sending_message = True
+        else:
+            await interaction.response.send_message(
+                f"That debug error point doesn't exist!", ephemeral=True
+            )
 
 
 
