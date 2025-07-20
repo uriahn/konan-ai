@@ -10,6 +10,7 @@ ACTIVE_CHANNELS = [
 ]
 SERVER_ID=1077552667393527838
 IGNORE_PREFIX = "kai%ign"
+DEBUG = False
 MODEL_NAME = "Meta's Llama 4 Maverick, hosted by Groq through OpenRouter."
 MODEL_PRIVACY_POLICIES = """\
 <https://groq.com/privacy-policy>
